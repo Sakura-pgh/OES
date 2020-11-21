@@ -135,8 +135,29 @@
         <el-form-item>
           <el-button type="primary" @click="queryForm">查询</el-button>
         </el-form-item>
+        <el-form-item label="随机题目数量">
+          <el-input-number
+            v-model="randomNum"
+            :placeholder="randomNumText"
+            controls-position="right"
+            style="width: 150px"
+            :min="0"
+            :max="questionPage.tableData.length"
+          ></el-input-number>
+          <!-- <el-input
+            v-model="randomNum"
+            :placeholder="randomNumText"
+            style="width: 150px"
+          /> -->
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="toggleSelection()"
+            >随机题目</el-button
+          >
+        </el-form-item>
       </el-form>
       <el-table
+        ref="multipleTable"
         v-loading="questionPage.listLoading"
         :data="questionPage.tableData"
         @selection-change="handleSelectionChange"
@@ -178,6 +199,7 @@ import Pagination from "@/components/Pagination";
 import QuestionShow from "../question/components/Show";
 import examPaperApi from "@/api/examPaper";
 import questionApi from "@/api/question";
+import { getRandomNum } from "@/utils";
 
 export default {
   components: { Pagination, QuestionShow },
@@ -193,6 +215,7 @@ export default {
         suggestTime: null,
         titleItems: []
       },
+      randomNum: null, // 随机生成题目数量
       subjectFilter: null,
       formLoading: false,
       rules: {
@@ -289,6 +312,7 @@ export default {
     },
     confirmQuestionSelect() {
       let _this = this;
+      this.randomNum = null;
       this.questionPage.multipleSelection.forEach(q => {
         questionApi.select(q.id).then(re => {
           _this.currentTitleItem.questionItems.push(re.response);
@@ -316,6 +340,26 @@ export default {
     handleSelectionChange(val) {
       this.questionPage.multipleSelection = val;
     },
+    // 随机选中
+    toggleSelection() {
+      let nums = getRandomNum(
+        0,
+        this.questionPage.tableData.length - 1,
+        this.randomNum
+      );
+      console.log("num: ", nums);
+      // let rows = this.questionPage.tableData;
+      // console.log("rows: ", rows);
+      if (nums.length > 0) {
+        this.$refs.multipleTable.clearSelection();
+        nums.forEach(index => {
+          this.$refs.multipleTable.toggleRowSelection(
+            this.questionPage.tableData[index],
+            true
+          );
+        });
+      }
+    },
     questionTypeFormatter(row, column, cellValue, index) {
       return this.enumFormat(this.questionTypeEnum, cellValue);
     },
@@ -335,7 +379,10 @@ export default {
       paperTypeEnum: state => state.exam.examPaper.paperTypeEnum,
       levelEnum: state => state.user.levelEnum
     }),
-    ...mapState("exam", { subjects: state => state.subjects })
+    ...mapState("exam", { subjects: state => state.subjects }),
+    randomNumText() {
+      return `请输入1到${this.questionPage.tableData.length}的数字`;
+    }
   }
 };
 </script>
