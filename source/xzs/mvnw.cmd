@@ -49,7 +49,7 @@ if exist "%HOME%\mavenrc_pre.cmd" call "%HOME%\mavenrc_pre.cmd"
 :skipRcPre
 
 @setlocal
-
+行clean,然后
 set ERROR_CODE=0
 
 @REM To isolate internal variables from possible post scripts, we use another setlocal
