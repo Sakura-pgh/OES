@@ -17,6 +17,16 @@
           <el-option v-for="item in subjectFilter" :key="item.id" :value="item.id" :label="item.name+' ( '+item.levelName+' )'"></el-option>
         </el-select>
       </el-form-item> -->
+      <el-form-item label="题目类型" prop="classify" required>
+        <el-select v-model="form.classify" placeholder="题目类型">
+          <el-option
+            v-for="item in topics"
+            :key="item.id"
+            :value="item.id"
+            :label="item.name"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="题干：" prop="title" required>
         <el-input v-model="form.title" @focus="inputClick(form, 'title')" />
       </el-form-item>
@@ -111,6 +121,7 @@ export default {
         questionType: 3,
         gradeLevel: 1,
         subjectId: 1,
+        classify: null,
         title: "",
         items: [
           { id: null, prefix: "A", content: "是" },
@@ -129,6 +140,9 @@ export default {
         ],
         subjectId: [
           { required: true, message: "请选择学科", trigger: "change" }
+        ],
+        classify: [
+          { required: true, message: "请选择题目类型", trigger: "change" }
         ],
         title: [{ required: true, message: "请输入题干", trigger: "blur" }],
         analyze: [{ required: true, message: "请输入解析", trigger: "blur" }],
@@ -225,7 +239,10 @@ export default {
       this.questionShow.qType = this.form.questionType;
       this.questionShow.question = this.form;
     },
-    ...mapActions("exam", { initSubject: "initSubject" }),
+    ...mapActions("exam", {
+      initSubject: "initSubject",
+      initTopic: "initTopic"
+    }),
     ...mapActions("tagsView", { delCurrentView: "delCurrentView" })
   },
   computed: {
@@ -234,7 +251,10 @@ export default {
       questionTypeEnum: state => state.exam.question.typeEnum,
       levelEnum: state => state.user.levelEnum
     }),
-    ...mapState("exam", { subjects: state => state.subjects })
+    ...mapState("exam", {
+      subjects: state => state.subjects,
+      topics: state => state.topics
+    })
   }
 };
 </script>

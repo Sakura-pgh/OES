@@ -26,12 +26,12 @@
         </el-select>
       </el-form-item>
       <el-form-item label="题目类型：">
-        <el-select v-model="queryParam.topicType" clearable>
+        <el-select v-model="queryParam.classify" clearable>
           <el-option
-            v-for="item in questionType"
-            :key="item.key"
-            :value="item.key"
-            :label="item.value"
+            v-for="item in topics"
+            :key="item.id"
+            :value="item.id"
+            :label="item.name"
           ></el-option>
         </el-select>
       </el-form-item>
@@ -77,6 +77,7 @@
         :formatter="subjectFormatter"
         width="120px"
       /> -->
+      <el-table-column prop="classifyName" label="类型" width="120px" />
       <el-table-column
         prop="questionType"
         label="题型"
@@ -136,7 +137,7 @@ export default {
         questionType: null,
         level: null,
         subjectId: null,
-        topicType: null,
+        classify: null,
         difficult: null,
         pageIndex: 1,
         pageSize: 10
@@ -155,6 +156,7 @@ export default {
   },
   created() {
     this.initSubject();
+    this.initTopic();
     this.search();
   },
   methods: {
@@ -212,7 +214,10 @@ export default {
     subjectFormatter(row, column, cellValue, index) {
       return this.subjectEnumFormat(cellValue);
     },
-    ...mapActions("exam", { initSubject: "initSubject" })
+    ...mapActions("exam", {
+      initSubject: "initSubject",
+      initTopic: "initTopic"
+    })
   },
   computed: {
     ...mapGetters("enumItem", ["enumFormat"]),
@@ -222,7 +227,10 @@ export default {
       levelEnum: state => state.user.levelEnum
     }),
     ...mapGetters("exam", ["subjectEnumFormat"]),
-    ...mapState("exam", { subjects: state => state.subjects })
+    ...mapState("exam", {
+      subjects: state => state.subjects,
+      topics: state => state.topics
+    })
   }
 };
 </script>
