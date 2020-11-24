@@ -1,0 +1,15 @@
+version: '3'
+services:
+  node:
+    image: 'oes/node14'
+    container_name: oes-web-container
+    user: 'root'
+    working_dir: /xzs-admin
+    ports:
+      - 8080:8080
+    volumes:
+      - ../xzs-admin/:/xzs-admin
+    command: >
+      /bin/bash -c "
+      yarn serve
+      "

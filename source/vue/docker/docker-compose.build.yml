@@ -1,0 +1,14 @@
+version: '3'
+services:
+  node:
+    image: 'oes/node14'
+    container_name: oes-web-build-container
+    user: 'root'
+    working_dir: /web
+    volumes:
+      - ../:/web
+    command: >
+      /bin/bash -c "
+      cd xzs-admin;
+      npm run build;
+      "
