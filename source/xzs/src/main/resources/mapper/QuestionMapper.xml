@@ -14,10 +14,11 @@
     <result column="status" jdbcType="INTEGER" property="status" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
+    <result column="classify" jdbcType="INTEGER" property="classify" />
   </resultMap>
   <sql id="Base_Column_List">
     id, question_type, subject_id, score, grade_level, difficult, correct, info_text_content_id,
-    create_user, status, create_time, deleted
+    create_user, status, create_time, deleted, classify
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select
@@ -33,12 +34,12 @@
     insert into t_question (id, question_type, subject_id,
       score, grade_level, difficult,
       correct, info_text_content_id, create_user,
-      status, create_time, deleted
+      status, create_time, deleted, classify
       )
     values (#{id,jdbcType=INTEGER}, #{questionType,jdbcType=INTEGER}, #{subjectId,jdbcType=INTEGER},
       #{score,jdbcType=INTEGER}, #{gradeLevel,jdbcType=INTEGER}, #{difficult,jdbcType=INTEGER},
       #{correct,jdbcType=VARCHAR}, #{infoTextContentId,jdbcType=INTEGER}, #{createUser,jdbcType=INTEGER},
-      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT}
+      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT}, #{classify,jdbcType=INTEGER}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.mindskip.xzs.domain.Question" useGeneratedKeys="true" keyProperty="id">
@@ -80,6 +81,9 @@
       <if test="deleted != null">
         deleted,
       </if>
+      <if test="classify != null">
+        classify,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -117,6 +121,9 @@
       </if>
       <if test="deleted != null">
         #{deleted,jdbcType=BIT},
+      </if>
+      <if test="classify != null">
+        #{classify,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -156,6 +163,9 @@
       <if test="deleted != null">
         deleted = #{deleted,jdbcType=BIT},
       </if>
+      <if test="classify != null">
+        classify = #{classify,jdbcType=INTEGER},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -172,12 +182,9 @@
       status = #{status,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       deleted = #{deleted,jdbcType=BIT}
+      classify = #{classify,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
-
-
-
-
   <select id="page" resultMap="BaseResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.question.QuestionPageRequestVM">
     SELECT
     <include refid="Base_Column_List"/>
@@ -196,11 +203,34 @@
       <if test="questionType != null ">
         and question_type= #{questionType}
       </if>
+      <if test="classify != null ">
+        and classify= #{classify}
+      </if>
+      <if test="difficult != null ">
+        and difficult= #{difficult}
+      </if>
     </where>
   </select>
-
-
-
+  <select id="autoCreatePaper" resultMap="BaseResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.exam.AutoCreatePaperRequestVM">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM t_question
+    <where>
+      and deleted=0
+      <if test="difficult != null ">
+        and difficult= #{difficult}
+      </if>
+      <if test="classify != null ">
+        and classify in
+        <foreach collection="classify" index="index" item="item" open="(" separator="," close=")">
+          #{item}
+        </foreach>
+      </if>
+    </where>
+    <if test="questionRandomNum != null ">
+      order by rand() limit #{questionRandomNum}
+    </if>
+  </select>
   <select id="selectByIds" resultMap="BaseResultMap" >
     SELECT
     <include refid="Base_Column_List"/>
@@ -210,12 +240,9 @@
       #{id}
     </foreach>
   </select>
-
-
   <select id="selectAllCount"  resultType="java.lang.Integer">
 		SELECT count(*) from t_question where  deleted=0
 	</select>
-
   <select id="selectCountByDate"  resultType="com.mindskip.xzs.domain.other.KeyValue">
 		SELECT create_time as name,COUNT(create_time) as value from
 		        (
@@ -224,5 +251,4 @@
 				) a
 		GROUP BY create_time
 	</select>
-
 </mapper>

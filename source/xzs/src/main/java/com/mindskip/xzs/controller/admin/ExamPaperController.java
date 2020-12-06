@@ -3,9 +3,11 @@ package com.mindskip.xzs.controller.admin;
 import com.mindskip.xzs.base.BaseApiController;
 import com.mindskip.xzs.base.RestResponse;
 import com.mindskip.xzs.domain.ExamPaper;
+import com.mindskip.xzs.domain.TaskExam;
 import com.mindskip.xzs.service.ExamPaperService;
 import com.mindskip.xzs.utility.DateTimeUtil;
 import com.mindskip.xzs.utility.PageInfoHelper;
+import com.mindskip.xzs.viewmodel.admin.exam.AutoCreatePaperRequestVM;
 import com.mindskip.xzs.viewmodel.admin.exam.ExamPaperPageRequestVM;
 import com.mindskip.xzs.viewmodel.admin.exam.ExamPaperEditRequestVM;
 import com.mindskip.xzs.viewmodel.admin.exam.ExamResponseVM;
@@ -67,5 +69,13 @@ public class ExamPaperController extends BaseApiController {
         examPaper.setDeleted(true);
         examPaperService.updateByIdFilter(examPaper);
         return RestResponse.ok();
+    }
+
+
+    @RequestMapping(value = "/auto_create_paper", method = RequestMethod.POST)
+    public RestResponse<ExamResponseVM> auto_create_paper(@RequestBody @Valid AutoCreatePaperRequestVM model) {
+        ExamResponseVM result = examPaperService.autoCreatePaper(model, getCurrentUser());
+        if (result == null) return RestResponse.fail(-1, "no question");
+        return RestResponse.ok(result);
     }
 }

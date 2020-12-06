@@ -17,11 +17,12 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
     <result column="task_exam_id" jdbcType="INTEGER" property="taskExamId" />
+    <result column="classify_names" jdbcType="VARCHAR" property="classifyNames" />
   </resultMap>
   <sql id="Base_Column_List">
     id, name, subject_id, paper_type, grade_level, score, question_count, suggest_time,
     limit_start_time, limit_end_time, frame_text_content_id, create_user, create_time,
-    deleted, task_exam_id
+    deleted, task_exam_id, classify_names
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select
@@ -38,13 +39,14 @@
       paper_type, grade_level, score,
       question_count, suggest_time, limit_start_time,
       limit_end_time, frame_text_content_id, create_user,
-      create_time, deleted, task_exam_id
+      create_time, deleted, task_exam_id, classify_names
       )
     values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{subjectId,jdbcType=INTEGER},
       #{paperType,jdbcType=INTEGER}, #{gradeLevel,jdbcType=INTEGER}, #{score,jdbcType=INTEGER},
       #{questionCount,jdbcType=INTEGER}, #{suggestTime,jdbcType=INTEGER}, #{limitStartTime,jdbcType=TIMESTAMP},
       #{limitEndTime,jdbcType=TIMESTAMP}, #{frameTextContentId,jdbcType=INTEGER}, #{createUser,jdbcType=INTEGER},
-      #{createTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT}, #{taskExamId,jdbcType=INTEGER}
+      #{createTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT}, #{taskExamId,jdbcType=INTEGER},
+      #{classifyName,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.mindskip.xzs.domain.ExamPaper" useGeneratedKeys="true" keyProperty="id">
@@ -95,6 +97,9 @@
       <if test="taskExamId != null">
         task_exam_id,
       </if>
+      <if test="classifyNames != null">
+        classify_names,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -142,6 +147,10 @@
       <if test="taskExamId != null">
         #{taskExamId,jdbcType=INTEGER},
       </if>
+      <if test="classifyNames != null">
+        #{classifyNames,jdbcType=VARCHAR},
+      </if>
+
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.mindskip.xzs.domain.ExamPaper">
@@ -189,6 +198,10 @@
       <if test="taskExamId != null">
         task_exam_id = #{taskExamId,jdbcType=INTEGER},
       </if>
+      <if test="classifyNames != null">
+        classify_names = #{classifyNames,jdbcType=VARCHAR},
+      </if>
+
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -208,15 +221,9 @@
       create_time = #{createTime,jdbcType=TIMESTAMP},
       deleted = #{deleted,jdbcType=BIT},
       task_exam_id = #{taskExamId,jdbcType=INTEGER}
+      classify_names = #{classifyNames,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
-
-
-
-
-
-
-
 
   <resultMap id="PaperInfoResultMap" type="com.mindskip.xzs.viewmodel.student.dashboard.PaperInfo">
     <id column="id" jdbcType="INTEGER" property="id" />

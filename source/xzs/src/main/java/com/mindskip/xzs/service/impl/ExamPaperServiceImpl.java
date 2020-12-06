@@ -6,6 +6,8 @@ import com.mindskip.xzs.domain.enums.ExamPaperTypeEnum;
 import com.mindskip.xzs.domain.exam.ExamPaperQuestionItemObject;
 import com.mindskip.xzs.domain.exam.ExamPaperTitleItemObject;
 import com.mindskip.xzs.domain.other.KeyValue;
+import com.mindskip.xzs.domain.question.QuestionItemObject;
+import com.mindskip.xzs.repository.ClassifyMapper;
 import com.mindskip.xzs.repository.ExamPaperMapper;
 import com.mindskip.xzs.repository.QuestionMapper;
 import com.mindskip.xzs.service.ExamPaperService;
@@ -17,13 +19,14 @@ import com.mindskip.xzs.utility.DateTimeUtil;
 import com.mindskip.xzs.utility.JsonUtil;
 import com.mindskip.xzs.utility.ModelMapperSingle;
 import com.mindskip.xzs.utility.ExamUtil;
-import com.mindskip.xzs.viewmodel.admin.exam.ExamPaperEditRequestVM;
-import com.mindskip.xzs.viewmodel.admin.exam.ExamPaperPageRequestVM;
-import com.mindskip.xzs.viewmodel.admin.exam.ExamPaperTitleItemVM;
+import com.mindskip.xzs.viewmodel.admin.exam.*;
+import com.mindskip.xzs.viewmodel.admin.question.QuestionEditItemVM;
 import com.mindskip.xzs.viewmodel.admin.question.QuestionEditRequestVM;
+import com.mindskip.xzs.viewmodel.admin.exam.ExamPaperTitleItemVM;
 import com.mindskip.xzs.viewmodel.student.dashboard.PaperFilter;
 import com.mindskip.xzs.viewmodel.student.dashboard.PaperInfo;
 import com.mindskip.xzs.viewmodel.student.exam.ExamPaperPageVM;
+
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mindskip.xzs.domain.ExamPaper;
@@ -34,9 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -46,15 +47,17 @@ public class ExamPaperServiceImpl extends BaseServiceImpl<ExamPaper> implements 
     protected final static ModelMapper modelMapper = ModelMapperSingle.Instance();
     private final ExamPaperMapper examPaperMapper;
     private final QuestionMapper questionMapper;
+    private final ClassifyMapper classifyMapper;
     private final TextContentService textContentService;
     private final QuestionService questionService;
     private final SubjectService subjectService;
 
     @Autowired
-    public ExamPaperServiceImpl(ExamPaperMapper examPaperMapper, QuestionMapper questionMapper, TextContentService textContentService, QuestionService questionService, SubjectService subjectService) {
+    public ExamPaperServiceImpl(ExamPaperMapper examPaperMapper, QuestionMapper questionMapper, ClassifyMapper classifyMapper, TextContentService textContentService, QuestionService questionService, SubjectService subjectService) {
         super(examPaperMapper);
         this.examPaperMapper = examPaperMapper;
         this.questionMapper = questionMapper;
+        this.classifyMapper = classifyMapper;
         this.textContentService = textContentService;
         this.questionService = questionService;
         this.subjectService = subjectService;
@@ -74,7 +77,7 @@ public class ExamPaperServiceImpl extends BaseServiceImpl<ExamPaper> implements 
     }
 
     @Override
-    public PageInfo<ExamPaper> studentPage(ExamPaperPageVM requestVM) {
+    public PageInfo<ExamPaper>  studentPage(ExamPaperPageVM requestVM) {
         return PageHelper.startPage(requestVM.getPageIndex(), requestVM.getPageSize(), "id desc").doSelectPageInfo(() ->
                 examPaperMapper.studentPage(requestVM));
     }
@@ -88,7 +91,11 @@ public class ExamPaperServiceImpl extends BaseServiceImpl<ExamPaper> implements 
         List<ExamPaperTitleItemVM> titleItemsVM = examPaperEditRequestVM.getTitleItems();
         List<ExamPaperTitleItemObject> frameTextContentList = frameTextContentFromVM(titleItemsVM);
         String frameTextContentStr = JsonUtil.toJsonStr(frameTextContentList);
-
+        // dylandai 2020-12-5 get all question classify in exampaper
+        Set<Integer> classifyIds = new HashSet<>();
+        for (ExamPaperTitleItemVM examPaperTitleItemVM: titleItemsVM)
+            for (QuestionEditRequestVM questionEditRequestVM: examPaperTitleItemVM.getQuestionItems())
+                classifyIds.add(questionEditRequestVM.getClassify());
         ExamPaper examPaper;
         if (actionEnum == ActionEnum.ADD) {
             examPaper = modelMapper.map(examPaperEditRequestVM, ExamPaper.class);
@@ -98,10 +105,12 @@ public class ExamPaperServiceImpl extends BaseServiceImpl<ExamPaper> implements 
             examPaper.setCreateTime(now);
             examPaper.setCreateUser(user.getId());
             examPaper.setDeleted(false);
+            examPaper.setClassifyNames(String.join(",", classifyMapper.getNamesByIds(classifyIds)));
             examPaperFromVM(examPaperEditRequestVM, examPaper, titleItemsVM);
             examPaperMapper.insertSelective(examPaper);
         } else {
             examPaper = examPaperMapper.selectByPrimaryKey(examPaperEditRequestVM.getId());
+            examPaper.setClassifyNames(String.join(",", classifyMapper.getNamesByIds(classifyIds)));
             TextContent frameTextContent = textContentService.selectById(examPaper.getFrameTextContentId());
             frameTextContent.setContent(frameTextContentStr);
             textContentService.updateByIdFilter(frameTextContent);
@@ -109,6 +118,7 @@ public class ExamPaperServiceImpl extends BaseServiceImpl<ExamPaper> implements 
             examPaperFromVM(examPaperEditRequestVM, examPaper, titleItemsVM);
             examPaperMapper.updateByPrimaryKeySelective(examPaper);
         }
+
         return examPaper;
     }
 
@@ -167,6 +177,41 @@ public class ExamPaperServiceImpl extends BaseServiceImpl<ExamPaper> implements 
         }).collect(Collectors.toList());
     }
 
+    @Override
+    public ExamResponseVM autoCreatePaper(AutoCreatePaperRequestVM requestVM, User user){
+        // todo
+        List<Question> questions = questionMapper.autoCreatePaper(requestVM);
+        if (questions.size() == 0)
+            return null;
+        Integer score = 0;
+        List<QuestionEditRequestVM> questionEditRequestVMList = new ArrayList<>();
+        for (Question question : questions){
+            QuestionEditRequestVM questionEditRequestVM = modelMapper.map(question, QuestionEditRequestVM.class);
+            questionEditRequestVM.setScore(question.getScore().toString());
+            questionEditRequestVMList.add(questionEditRequestVM);
+            score += question.getScore();
+        }
+        ExamPaperTitleItemVM examPaperTitleItemVM = new ExamPaperTitleItemVM();
+        examPaperTitleItemVM.setName("第一题");
+        examPaperTitleItemVM.setQuestionItems(questionEditRequestVMList);
+        List<ExamPaperTitleItemVM> examPaperTitleItemVMList = new ArrayList<>();
+        examPaperTitleItemVMList.add(examPaperTitleItemVM);
+        modelMapper.map(questions, QuestionEditRequestVM.class);
+        ExamPaperEditRequestVM examPaperEditRequestVM = new ExamPaperEditRequestVM();
+        examPaperEditRequestVM.setSubjectId(1);
+        examPaperEditRequestVM.setLevel(1);
+        examPaperEditRequestVM.setPaperType(6);
+        examPaperEditRequestVM.setName("未命名试卷");
+        examPaperEditRequestVM.setSuggestTime(requestVM.getSuggestTime());
+        examPaperEditRequestVM.setSuggestTime(requestVM.getSuggestTime());
+        examPaperEditRequestVM.setTitleItems(examPaperTitleItemVMList);
+        examPaperEditRequestVM.setScore(Integer.toString(score));
+        ExamPaper examPaper = savePaperFromVM(examPaperEditRequestVM, user);
+        ExamResponseVM examResponseVM = modelMapper.map(examPaper, ExamResponseVM.class);
+        examResponseVM.setCreateTime(DateTimeUtil.dateFormat(examPaper.getCreateTime()));
+        return examResponseVM;
+    }
+
     private void examPaperFromVM(ExamPaperEditRequestVM examPaperEditRequestVM, ExamPaper examPaper, List<ExamPaperTitleItemVM> titleItemsVM) {
         Integer gradeLevel = subjectService.levelBySubjectId(examPaperEditRequestVM.getSubjectId());
         Integer questionCount = titleItemsVM.stream()
@@ -200,4 +245,5 @@ public class ExamPaperServiceImpl extends BaseServiceImpl<ExamPaper> implements 
             return titleItem;
         }).collect(Collectors.toList());
     }
+
 }

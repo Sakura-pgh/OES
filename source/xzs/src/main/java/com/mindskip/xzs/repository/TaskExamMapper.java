@@ -3,6 +3,7 @@ package com.mindskip.xzs.repository;
 import com.mindskip.xzs.domain.TaskExam;
 import com.mindskip.xzs.viewmodel.admin.task.TaskPageRequestVM;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -19,6 +20,12 @@ public interface TaskExamMapper extends BaseMapper<TaskExam> {
     int updateByPrimaryKeySelective(TaskExam record);
 
     int updateByPrimaryKey(TaskExam record);
+
+    List<Integer> getTaskExamUser(Integer id);
+
+    int deleteTaskExamUserByTaskExamId(Integer id);
+
+    int insertTaskExamUser(@Param("id")Integer taskExamId, @Param("userIds")List<Integer> userIds);
 
     List<TaskExam> page(TaskPageRequestVM requestVM);
 

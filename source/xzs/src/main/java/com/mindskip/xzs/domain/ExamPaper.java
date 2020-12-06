@@ -2,6 +2,7 @@ package com.mindskip.xzs.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class ExamPaper implements Serializable {
 
@@ -36,6 +37,8 @@ public class ExamPaper implements Serializable {
     private Boolean deleted;
 
     private Integer taskExamId;
+
+    private String classifyNames;
 
     public Integer getId() {
         return id;
@@ -156,4 +159,13 @@ public class ExamPaper implements Serializable {
     public void setTaskExamId(Integer taskExamId) {
         this.taskExamId = taskExamId;
     }
+
+    public String getClassifyNames() {
+        return classifyNames;
+    }
+
+    public void setClassifyNames(String classifyNames) {
+        this.classifyNames = classifyNames;
+    }
+
 }

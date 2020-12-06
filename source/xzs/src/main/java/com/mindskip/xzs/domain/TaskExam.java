@@ -23,6 +23,12 @@ public class TaskExam  implements Serializable {
 
     private String createUserName;
 
+    private Date limitStartTime;
+
+    private Date limitEndTime;
+
+    private Boolean limitUser;
+
     public Integer getId() {
         return id;
     }
@@ -85,5 +91,29 @@ public class TaskExam  implements Serializable {
 
     public void setCreateUserName(String createUserName) {
         this.createUserName = createUserName == null ? null : createUserName.trim();
+    }
+
+    public Date getLimitStartTime() {
+        return limitStartTime;
+    }
+
+    public void setLimitStartTime(Date limitStartTime) {
+        this.limitStartTime = limitStartTime;
+    }
+
+    public Date getLimitEndTime() {
+        return limitEndTime;
+    }
+
+    public void setLimitEndTime(Date limitEndTime) {
+        this.limitEndTime = limitEndTime;
+    }
+
+    public Boolean getLimitUser() {
+        return limitUser;
+    }
+
+    public void setLimitUser(Boolean limitUser) {
+        this.limitUser = limitUser;
     }
 }
