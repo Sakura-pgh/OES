@@ -3,10 +3,12 @@ package com.mindskip.xzs.controller.admin;
 import com.mindskip.xzs.base.BaseApiController;
 import com.mindskip.xzs.base.RestResponse;
 import com.mindskip.xzs.base.SystemCode;
+import com.mindskip.xzs.domain.Classify;
 import com.mindskip.xzs.domain.Question;
 import com.mindskip.xzs.domain.TextContent;
 import com.mindskip.xzs.domain.enums.QuestionTypeEnum;
 import com.mindskip.xzs.domain.question.QuestionObject;
+import com.mindskip.xzs.service.ClassifyService;
 import com.mindskip.xzs.service.QuestionService;
 import com.mindskip.xzs.service.TextContentService;
 import com.mindskip.xzs.utility.*;
@@ -28,6 +30,7 @@ public class QuestionController extends BaseApiController {
 
     private final QuestionService questionService;
     private final TextContentService textContentService;
+    private final ClassifyService classifyService;
 
     @RequestMapping(value = "/page", method = RequestMethod.POST)
     public RestResponse<PageInfo<QuestionResponseVM>> pageList(@RequestBody QuestionPageRequestVM model) {
@@ -40,6 +43,12 @@ public class QuestionController extends BaseApiController {
             QuestionObject questionObject = JsonUtil.toJsonObject(textContent.getContent(), QuestionObject.class);
             String clearHtml = HtmlUtil.clear(questionObject.getTitleContent());
             vm.setShortTitle(clearHtml);
+            Classify classify = classifyService.selectById(q.getClassify());
+            if (classify != null)
+                vm.setClassifyName(classify.getName());
+            else
+                vm.setClassifyName(null);
+
             return vm;
         });
         return RestResponse.ok(page);

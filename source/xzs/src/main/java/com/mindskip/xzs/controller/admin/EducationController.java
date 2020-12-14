@@ -4,11 +4,16 @@ package com.mindskip.xzs.controller.admin;
 import com.mindskip.xzs.base.BaseApiController;
 import com.mindskip.xzs.base.RestResponse;
 import com.mindskip.xzs.domain.Subject;
+import com.mindskip.xzs.domain.Classify;
 import com.mindskip.xzs.service.SubjectService;
+import com.mindskip.xzs.service.ClassifyService;
 import com.mindskip.xzs.utility.PageInfoHelper;
 import com.mindskip.xzs.viewmodel.admin.education.SubjectEditRequestVM;
 import com.mindskip.xzs.viewmodel.admin.education.SubjectPageRequestVM;
 import com.mindskip.xzs.viewmodel.admin.education.SubjectResponseVM;
+import com.mindskip.xzs.viewmodel.admin.education.ClassifyEditRequestVM;
+import com.mindskip.xzs.viewmodel.admin.education.ClassifyPageRequestVM;
+import com.mindskip.xzs.viewmodel.admin.education.ClassifyResponseVM;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -22,22 +27,23 @@ import java.util.List;
 public class EducationController extends BaseApiController {
 
     private final SubjectService subjectService;
+    private final ClassifyService classifyService;
 
     @RequestMapping(value = "/subject/list", method = RequestMethod.POST)
-    public RestResponse<List<Subject>> list() {
+    public RestResponse<List<Subject>> listSubject() {
         List<Subject> subjects = subjectService.allSubject();
         return RestResponse.ok(subjects);
     }
 
     @RequestMapping(value = "/subject/page", method = RequestMethod.POST)
-    public RestResponse<PageInfo<SubjectResponseVM>> pageList(@RequestBody SubjectPageRequestVM model) {
+    public RestResponse<PageInfo<SubjectResponseVM>> pageListSubject(@RequestBody SubjectPageRequestVM model) {
         PageInfo<Subject> pageInfo = subjectService.page(model);
         PageInfo<SubjectResponseVM> page = PageInfoHelper.copyMap(pageInfo, e -> modelMapper.map(e, SubjectResponseVM.class));
         return RestResponse.ok(page);
     }
 
     @RequestMapping(value = "/subject/edit", method = RequestMethod.POST)
-    public RestResponse edit(@RequestBody @Valid SubjectEditRequestVM model) {
+    public RestResponse editSubject(@RequestBody @Valid SubjectEditRequestVM model) {
         Subject subject = modelMapper.map(model, Subject.class);
         if (model.getId() == null) {
             subject.setDeleted(false);
@@ -49,17 +55,58 @@ public class EducationController extends BaseApiController {
     }
 
     @RequestMapping(value = "/subject/select/{id}", method = RequestMethod.POST)
-    public RestResponse<SubjectEditRequestVM> select(@PathVariable Integer id) {
+    public RestResponse<SubjectEditRequestVM> selectSubject(@PathVariable Integer id) {
         Subject subject = subjectService.selectById(id);
         SubjectEditRequestVM vm = modelMapper.map(subject, SubjectEditRequestVM.class);
         return RestResponse.ok(vm);
     }
 
     @RequestMapping(value = "/subject/delete/{id}", method = RequestMethod.POST)
-    public RestResponse delete(@PathVariable Integer id) {
+    public RestResponse deleteSubject(@PathVariable Integer id) {
         Subject subject = subjectService.selectById(id);
         subject.setDeleted(true);
         subjectService.updateByIdFilter(subject);
+        return RestResponse.ok();
+    }
+
+
+    @RequestMapping(value = "/classify/list", method = RequestMethod.POST)
+    public RestResponse<List<Classify>> listClassify() {
+        List<Classify> classifies = classifyService.allClassify();
+        return RestResponse.ok(classifies);
+    }
+
+    @RequestMapping(value = "/classify/page", method = RequestMethod.POST)
+    public RestResponse<PageInfo<ClassifyResponseVM>> pageListClassify(@RequestBody ClassifyPageRequestVM model) {
+        PageInfo<Classify> pageInfo = classifyService.page(model);
+        PageInfo<ClassifyResponseVM> page = PageInfoHelper.copyMap(pageInfo, e -> modelMapper.map(e, ClassifyResponseVM.class));
+        return RestResponse.ok(page);
+    }
+
+    @RequestMapping(value = "/classify/edit", method = RequestMethod.POST)
+    public RestResponse editClassify(@RequestBody @Valid ClassifyEditRequestVM model) {
+        Classify classify = modelMapper.map(model, Classify.class);
+        if (model.getId() == null) {
+            classifyService.insertByFilter(classify);
+        } else {
+            classifyService.updateByIdFilter(classify);
+        }
+        return RestResponse.ok();
+    }
+
+    @RequestMapping(value = "/classify/select/{id}", method = RequestMethod.POST)
+    public RestResponse<ClassifyEditRequestVM> selectClassify(@PathVariable Integer id) {
+        Classify classify = classifyService.selectById(id);
+        if (classify == null){
+            return RestResponse.ok(null);
+        }
+        ClassifyEditRequestVM vm = modelMapper.map(classify, ClassifyEditRequestVM.class);
+        return RestResponse.ok(vm);
+    }
+
+    @RequestMapping(value = "/classify/delete/{id}", method = RequestMethod.POST)
+    public RestResponse deleteClassify(@PathVariable Integer id) {
+        int ret = classifyService.deleteById(id);
         return RestResponse.ok();
     }
 }

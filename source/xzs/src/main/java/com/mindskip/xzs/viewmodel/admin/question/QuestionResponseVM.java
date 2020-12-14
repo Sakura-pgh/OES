@@ -30,4 +30,7 @@ public class QuestionResponseVM extends BaseVM {
 
     private String shortTitle;
 
+    private Integer classify;
+
+    private String classifyName;
 }

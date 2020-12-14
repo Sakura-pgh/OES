@@ -15,6 +15,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.List;
 
 @RestController("AdminTaskController")
 @RequestMapping(value = "/api/admin/task")
@@ -29,6 +31,8 @@ public class TaskController extends BaseApiController {
         PageInfo<TaskPageResponseVM> page = PageInfoHelper.copyMap(pageInfo, m -> {
             TaskPageResponseVM vm = modelMapper.map(m, TaskPageResponseVM.class);
             vm.setCreateTime(DateTimeUtil.dateFormat(m.getCreateTime()));
+            List<String> limitDateTime = Arrays.asList(DateTimeUtil.dateFormat(m.getLimitStartTime()), DateTimeUtil.dateFormat(m.getLimitEndTime()));
+            vm.setLimitDateTime(limitDateTime);
             return vm;
         });
         return RestResponse.ok(page);

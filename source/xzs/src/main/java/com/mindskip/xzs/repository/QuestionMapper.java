@@ -2,6 +2,7 @@ package com.mindskip.xzs.repository;
 
 import com.mindskip.xzs.domain.other.KeyValue;
 import com.mindskip.xzs.domain.Question;
+import com.mindskip.xzs.viewmodel.admin.exam.AutoCreatePaperRequestVM;
 import com.mindskip.xzs.viewmodel.admin.question.QuestionPageRequestVM;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -24,6 +25,8 @@ public interface QuestionMapper extends BaseMapper<Question> {
     int updateByPrimaryKey(Question record);
 
     List<Question> page(QuestionPageRequestVM requestVM);
+
+    List<Question> autoCreatePaper(AutoCreatePaperRequestVM requestVM);
 
     List<Question> selectByIds(@Param("ids") List<Integer> ids);
 

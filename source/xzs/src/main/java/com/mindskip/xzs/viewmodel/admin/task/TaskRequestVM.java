@@ -1,6 +1,7 @@
 package com.mindskip.xzs.viewmodel.admin.task;
 
 import com.mindskip.xzs.viewmodel.admin.exam.ExamResponseVM;
+import com.mindskip.xzs.viewmodel.admin.user.UserCreateVM;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -18,6 +19,10 @@ public class TaskRequestVM {
 
     @NotNull
     private String title;
+
+    private List<String> limitDateTime;
+
+    private List<UserCreateVM> studentItems;
 
     @Size(min = 1, message = "请添加试卷")
     @Valid

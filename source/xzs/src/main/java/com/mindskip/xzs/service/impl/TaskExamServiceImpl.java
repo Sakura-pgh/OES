@@ -7,6 +7,7 @@ import com.mindskip.xzs.domain.User;
 import com.mindskip.xzs.domain.task.TaskItemObject;
 import com.mindskip.xzs.repository.ExamPaperMapper;
 import com.mindskip.xzs.repository.TaskExamMapper;
+import com.mindskip.xzs.repository.UserMapper;
 import com.mindskip.xzs.service.TaskExamService;
 import com.mindskip.xzs.service.TextContentService;
 import com.mindskip.xzs.service.enums.ActionEnum;
@@ -18,11 +19,14 @@ import com.mindskip.xzs.viewmodel.admin.task.TaskPageRequestVM;
 import com.mindskip.xzs.viewmodel.admin.task.TaskRequestVM;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.mindskip.xzs.viewmodel.admin.user.UserCreateVM;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,13 +38,15 @@ public class TaskExamServiceImpl extends BaseServiceImpl<TaskExam> implements Ta
     private final TaskExamMapper taskExamMapper;
     private final TextContentService textContentService;
     private final ExamPaperMapper examPaperMapper;
+    private final UserMapper userMapper;
 
     @Autowired
-    public TaskExamServiceImpl(TaskExamMapper taskExamMapper, TextContentService textContentService, ExamPaperMapper examPaperMapper) {
+    public TaskExamServiceImpl(TaskExamMapper taskExamMapper, TextContentService textContentService, ExamPaperMapper examPaperMapper, UserMapper userMapper) {
         super(taskExamMapper);
         this.taskExamMapper = taskExamMapper;
         this.textContentService = textContentService;
         this.examPaperMapper = examPaperMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -54,6 +60,7 @@ public class TaskExamServiceImpl extends BaseServiceImpl<TaskExam> implements Ta
     @Transactional
     public void edit(TaskRequestVM model, User user) {
         ActionEnum actionEnum = (model.getId() == null) ? ActionEnum.ADD : ActionEnum.UPDATE;
+        boolean limitUser = model.getStudentItems() != null && model.getStudentItems().size() != 0;
         TaskExam taskExam = null;
         if (actionEnum == ActionEnum.ADD) {
             Date now = new Date();
@@ -62,6 +69,9 @@ public class TaskExamServiceImpl extends BaseServiceImpl<TaskExam> implements Ta
             taskExam.setCreateUserName(user.getUserName());
             taskExam.setCreateTime(now);
             taskExam.setDeleted(false);
+            taskExam.setLimitUser(limitUser);
+            taskExam.setLimitStartTime(DateTimeUtil.parse(model.getLimitDateTime().get(0), DateTimeUtil.STANDER_FORMAT));
+            taskExam.setLimitEndTime(DateTimeUtil.parse(model.getLimitDateTime().get(1), DateTimeUtil.STANDER_FORMAT));
 
             //保存任务结构
             TextContent textContent = textContentService.jsonConvertInsert(model.getPaperItems(), now, p -> {
@@ -73,10 +83,13 @@ public class TaskExamServiceImpl extends BaseServiceImpl<TaskExam> implements Ta
             textContentService.insertByFilter(textContent);
             taskExam.setFrameTextContentId(textContent.getId());
             taskExamMapper.insertSelective(taskExam);
-
         } else {
             taskExam = taskExamMapper.selectByPrimaryKey(model.getId());
             modelMapper.map(model, taskExam);
+            taskExam.setLimitUser(limitUser);
+            List<String> limitDateTime = model.getLimitDateTime();
+            taskExam.setLimitStartTime(DateTimeUtil.parse(limitDateTime.get(0), DateTimeUtil.STANDER_FORMAT));
+            taskExam.setLimitEndTime(DateTimeUtil.parse(limitDateTime.get(1), DateTimeUtil.STANDER_FORMAT));
 
             TextContent textContent = textContentService.selectById(taskExam.getFrameTextContentId());
             //清空试卷任务的试卷Id，后面会统一设置
@@ -101,6 +114,15 @@ public class TaskExamServiceImpl extends BaseServiceImpl<TaskExam> implements Ta
         List<Integer> paperIds = model.getPaperItems().stream().map(d -> d.getId()).collect(Collectors.toList());
         examPaperMapper.updateTaskPaper(taskExam.getId(), paperIds);
         model.setId(taskExam.getId());
+
+        taskExamMapper.deleteTaskExamUserByTaskExamId(taskExam.getId());
+        if (limitUser){
+            // add user into exam
+            List<Integer> userIds = new ArrayList<>();
+            for (UserCreateVM student : model.getStudentItems())
+                userIds.add(student.getId());
+            taskExamMapper.insertTaskExamUser(taskExam.getId(), userIds);
+        }
     }
 
     @Override
@@ -115,6 +137,18 @@ public class TaskExamServiceImpl extends BaseServiceImpl<TaskExam> implements Ta
             return examResponseVM;
         }).collect(Collectors.toList());
         vm.setPaperItems(examResponseVMS);
+        List<String> limitDateTime = Arrays.asList(DateTimeUtil.dateFormat(taskExam.getLimitStartTime()), DateTimeUtil.dateFormat(taskExam.getLimitEndTime()));
+        vm.setLimitDateTime(limitDateTime);
+        if (taskExam.getLimitUser()){
+            List<Integer> userIds = taskExamMapper.getTaskExamUser(id);
+            if (userIds.size() != 0){
+                List<User> users = userMapper.selectByIds(userIds);
+                List<UserCreateVM> userCreateVMs = new ArrayList<>();
+                for (User user : users)
+                    userCreateVMs.add(modelMapper.map(user, UserCreateVM.class));
+                vm.setStudentItems(userCreateVMs);
+            }
+        }
         return vm;
     }
 

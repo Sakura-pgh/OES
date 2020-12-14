@@ -35,6 +35,8 @@ public class Question implements Serializable {
 
     private Boolean deleted;
 
+    private Integer classify;
+
     public Integer getId() {
         return id;
     }
@@ -131,6 +133,13 @@ public class Question implements Serializable {
         this.deleted = deleted;
     }
 
+    public Integer getClassify() {
+        return classify;
+    }
+
+    public void setClassify(Integer classify) {
+        this.classify = classify;
+    }
 
     public void setCorrectFromVM(String correct, List<String> correctArray) {
         int qType = this.getQuestionType();

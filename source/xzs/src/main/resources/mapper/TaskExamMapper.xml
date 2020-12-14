@@ -10,10 +10,13 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
     <result column="create_user_name" jdbcType="VARCHAR" property="createUserName" />
+    <result column="limit_start_time" jdbcType="TIMESTAMP" property="limitStartTime" />
+    <result column="limit_end_time" jdbcType="TIMESTAMP" property="limitEndTime" />
+    <result column="limit_user" jdbcType="BIT" property="limitUser" />
   </resultMap>
   <sql id="Base_Column_List">
     id, title, grade_level, frame_text_content_id, create_user, create_time, deleted,
-    create_user_name
+    create_user_name, limit_start_time, limit_end_time, limit_user
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select
@@ -27,11 +30,12 @@
   </delete>
   <insert id="insert" parameterType="com.mindskip.xzs.domain.TaskExam" useGeneratedKeys="true" keyProperty="id">
     insert into t_task_exam (id, title, grade_level,
-      frame_text_content_id, create_user, create_time,
-      deleted, create_user_name)
+      frame_text_content_id, create_user, create_time
+      deleted, create_user_name, limit_start_time, limit_end_time, limit_user)
     values (#{id,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{gradeLevel,jdbcType=INTEGER},
       #{frameTextContentId,jdbcType=INTEGER}, #{createUser,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP},
-      #{deleted,jdbcType=BIT}, #{createUserName,jdbcType=VARCHAR})
+      #{deleted,jdbcType=BIT}, #{createUserName,jdbcType=VARCHAR}), #{limitStartTime,jdbcType=TIMESTAMP},
+      #{limitEndTime,jdbcType=TIMESTAMP}, #{limitUser,jdbcType=BIT}
   </insert>
   <insert id="insertSelective" parameterType="com.mindskip.xzs.domain.TaskExam" useGeneratedKeys="true" keyProperty="id">
     insert into t_task_exam
@@ -60,6 +64,15 @@
       <if test="createUserName != null">
         create_user_name,
       </if>
+      <if test="limitStartTime != null">
+        limit_start_time,
+      </if>
+      <if test="limitEndTime != null">
+        limit_end_time,
+      </if>
+      <if test="limitUser != null">
+        limit_user,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -85,6 +98,15 @@
       </if>
       <if test="createUserName != null">
         #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="limitStartTime != null">
+        #{limitStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="limitEndTime != null">
+        #{limitEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="limitUser != null">
+        #{limitUser,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -112,6 +134,15 @@
       <if test="createUserName != null">
         create_user_name = #{createUserName,jdbcType=VARCHAR},
       </if>
+      <if test="limitStartTime != null">
+        limit_start_time = #{limitStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="limitEndTime != null">
+        limit_end_time = #{limitEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="limitUser != null">
+        deleted = #{limit_user,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -123,16 +154,40 @@
       create_user = #{createUser,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       deleted = #{deleted,jdbcType=BIT},
-      create_user_name = #{createUserName,jdbcType=VARCHAR}
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      limit_start_time = #{createTime,jdbcType=TIMESTAMP},
+    limit_end_time = #{createTime,jdbcType=TIMESTAMP},
+    limit_user = #{limitUser,jdbcType=BIT}
     where id = #{id,jdbcType=INTEGER}
   </update>
 
 
+  <select id="getTaskExamUser" parameterType="java.lang.Integer" resultType="Integer">
+    select
+      user_id
+    from t_task_exam_user
+    <where>
+      <if test="id != null">
+        and task_exam_id = #{id}
+      </if>
+    </where>
+  </select>
 
+  <delete id="deleteTaskExamUserByTaskExamId" parameterType="java.lang.Integer">
+    delete from t_task_exam_user
+    where task_exam_id = #{id,jdbcType=INTEGER}
+  </delete>
 
-
-
-
+  <insert id="insertTaskExamUser">
+    insert into t_task_exam_user (task_exam_id, user_id)
+    values
+    <foreach collection="userIds" item="item" index="index" separator=",">
+      (
+      #{id},
+      #{item}
+      )
+    </foreach>
+  </insert>
 
   <select id="page" resultMap="BaseResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.task.TaskPageRequestVM">
     select

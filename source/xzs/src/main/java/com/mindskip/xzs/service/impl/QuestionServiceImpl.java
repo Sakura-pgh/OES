@@ -77,6 +77,7 @@ public class QuestionServiceImpl extends BaseServiceImpl<Question> implements Qu
         question.setInfoTextContentId(infoTextContent.getId());
         question.setCreateUser(userId);
         question.setDeleted(false);
+        question.setClassify(model.getClassify());
         questionMapper.insertSelective(question);
         return question;
     }
@@ -90,6 +91,7 @@ public class QuestionServiceImpl extends BaseServiceImpl<Question> implements Qu
         question.setGradeLevel(gradeLevel);
         question.setScore(ExamUtil.scoreFromVM(model.getScore()));
         question.setDifficult(model.getDifficult());
+        question.setClassify(model.getClassify());
         question.setCorrectFromVM(model.getCorrect(), model.getCorrectArray());
         questionMapper.updateByPrimaryKeySelective(question);
 
