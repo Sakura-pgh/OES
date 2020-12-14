@@ -11,15 +11,30 @@ module.exports = {
   assetsDir: 'static',
   lintOnSave: true,
   productionSourceMap: false,
+  // devServer: {
+  //   open: true,
+  //   host: 'localhost',
+  //   port: 8001,
+  //   https: false,
+  //   hotOnly: false,
+  //   proxy: {
+  //     '/api': {
+  //       // target: 'http://localhost:8000',
+  //       target: 'http://localhost:8000',
+  //       changeOrigin: true
+  //     }
+  //   }
+  // },
   devServer: {
     open: true,
-    host: 'localhost',
+    host: "0.0.0.0",
+    // host: "localhost", // docker默认模式下localhost与宿主机不相连
     port: 8001,
     https: false,
     hotOnly: false,
     proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
+      "/api": {
+        target: "http://www.arrive.ai:6006",
         changeOrigin: true
       }
     }
