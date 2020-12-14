@@ -122,6 +122,16 @@
         <el-form-item label="ID：">
           <el-input v-model="questionPage.queryParam.id" clearable></el-input>
         </el-form-item>
+        <el-form-item label="题目类型">
+          <el-select v-model="questionPage.queryParam.classify" clearable>
+            <el-option
+              v-for="item in topics"
+              :key="item.id"
+              :value="item.id"
+              :label="item.name"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="题型：">
           <el-select v-model="questionPage.queryParam.questionType" clearable>
             <el-option
@@ -168,6 +178,7 @@
       >
         <el-table-column type="selection" width="35"></el-table-column>
         <el-table-column prop="id" label="Id" width="60px" />
+        <el-table-column prop="classifyName" label="题目类型" width="120px" />
         <el-table-column
           prop="questionType"
           label="题型"
@@ -236,10 +247,11 @@ export default {
         showDialog: false,
         queryParam: {
           id: null,
+          classify: null,
           questionType: null,
           subjectId: 1,
           pageIndex: 1,
-          pageSize: 5
+          pageSize: 100
         },
         listLoading: true,
         tableData: [],
@@ -254,6 +266,8 @@ export default {
     this.initSubject(function() {
       _this.subjectFilter = _this.subjects;
     });
+    this.initTopic();
+
     if (id && parseInt(id) !== 0) {
       _this.formLoading = true;
       examPaperApi.select(id).then(re => {
@@ -369,7 +383,10 @@ export default {
     resetForm() {
       this.$refs["form"].resetFields();
     },
-    ...mapActions("exam", { initSubject: "initSubject" }),
+    ...mapActions("exam", {
+      initSubject: "initSubject",
+      initTopic: "initTopic"
+    }),
     ...mapActions("tagsView", { delCurrentView: "delCurrentView" })
   },
   computed: {
@@ -379,7 +396,10 @@ export default {
       paperTypeEnum: state => state.exam.examPaper.paperTypeEnum,
       levelEnum: state => state.user.levelEnum
     }),
-    ...mapState("exam", { subjects: state => state.subjects }),
+    ...mapState("exam", {
+      subjects: state => state.subjects,
+      topics: state => state.topics
+    }),
     randomNumText() {
       return `请输入1到${this.questionPage.tableData.length}的数字`;
     }

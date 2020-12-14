@@ -1,4 +1,4 @@
-"use strict";
+// "use strict";
 const path = require("path");
 
 function resolve(dir) {
@@ -26,7 +26,8 @@ module.exports = {
   // },
   devServer: {
     open: true,
-    host: "localhost",
+    host: "0.0.0.0",
+    // host: "localhost", // docker默认模式下localhost与宿主机不相连
     port: 8080,
     https: false,
     hotOnly: false,
