@@ -21,4 +21,14 @@ public class UserUpdateVM {
 
     @NotNull
     private Integer userLevel;
+
+    private String profession;
+
+    private String address;
+
+    private String organization;
+
+    private String registrationId;
+
+    private String education;
 }

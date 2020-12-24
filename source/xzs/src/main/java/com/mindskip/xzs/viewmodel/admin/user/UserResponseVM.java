@@ -30,6 +30,14 @@ public class UserResponseVM extends BaseVM {
 
     private String phone;
 
+    private String profession;
+
+    private String address;
+
+    private String organization;
+
+    private String registrationId;
+
     private String lastActiveTime;
 
     private String createTime;
@@ -41,6 +49,8 @@ public class UserResponseVM extends BaseVM {
     private Integer userLevel;
 
     private String imagePath;
+
+    private String education;
 
     public static UserResponseVM from(User user) {
         UserResponseVM vm = modelMapper.map(user, UserResponseVM.class);

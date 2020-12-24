@@ -233,24 +233,32 @@
   </resultMap>
 
 
-  <select id="page" resultMap="BaseResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.exam.ExamPaperPageRequestVM">
+  <select id="page" resultMap="BaseResultMap" >
     SELECT
     <include refid="Base_Column_List"/>
     FROM t_exam_paper
     <where>
         and deleted=0
-      <if test="id != null ">
-        and id= #{id}
+      <if test="requestVM.id != null ">
+        and id= #{requestVM.id}
       </if>
-      <if test="level != null ">
-        and grade_level= #{level}
+      <if test="requestVM.level != null ">
+        and grade_level= #{requestVM.level}
       </if>
-      <if test="subjectId != null ">
-        and subject_id= #{subjectId}
+      <if test="requestVM.subjectId != null ">
+        and subject_id= #{requestVM.subjectId}
       </if>
-      <if test="paperType != null ">
-        and paper_type= #{paperType}
+      <if test="requestVM.paperType != null ">
+        and paper_type= #{requestVM.paperType}
       </if>
+      <choose>
+        <when test="user.role == 1 ">
+          and create_user= #{user.id}
+        </when>
+        <otherwise>
+          and create_user in (select id from t_user where role!=1)
+        </otherwise>
+      </choose>
     </where>
   </select>
 

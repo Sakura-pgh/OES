@@ -42,6 +42,16 @@ public class UserResponseVM extends BaseVM {
 
     private String imagePath;
 
+    private String profession;
+
+    private String address;
+
+    private String organization;
+
+    private String registrationId;
+
+    private String education;
+
     public static UserResponseVM from(User user) {
         UserResponseVM vm = modelMapper.map(user, UserResponseVM.class);
         vm.setBirthDay(DateTimeUtil.dateFormat(user.getBirthDay()));

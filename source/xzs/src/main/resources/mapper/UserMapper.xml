@@ -20,10 +20,16 @@
     <result column="last_active_time" jdbcType="TIMESTAMP" property="lastActiveTime" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
     <result column="wx_open_id" jdbcType="VARCHAR" property="wxOpenId" />
+    <result column="profession" jdbcType="VARCHAR" property="profession" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="organization" jdbcType="VARCHAR" property="organization" />
+    <result column="registration_id" jdbcType="VARCHAR" property="registrationId" />
+    <result column="education" jdbcType="VARCHAR" property="education" />
   </resultMap>
   <sql id="Base_Column_List">
     id, user_uuid, user_name, password, real_name, age, sex, birth_day, user_level, phone,
-    role, status, image_path, create_time, modify_time, last_active_time, deleted, wx_open_id
+    role, status, image_path, create_time, modify_time, last_active_time, deleted, wx_open_id,
+    profession, address, organization, registration_id, education
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select
@@ -41,14 +47,17 @@
       sex, birth_day, user_level,
       phone, role, status,
       image_path, create_time, modify_time,
-      last_active_time, deleted, wx_open_id
+      last_active_time, deleted, wx_open_id,
+      profession, address, organization, registration_id, education
       )
     values (#{id,jdbcType=INTEGER}, #{userUuid,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR},
       #{password,jdbcType=VARCHAR}, #{realName,jdbcType=VARCHAR}, #{age,jdbcType=INTEGER},
       #{sex,jdbcType=INTEGER}, #{birthDay,jdbcType=TIMESTAMP}, #{userLevel,jdbcType=INTEGER},
       #{phone,jdbcType=VARCHAR}, #{role,jdbcType=INTEGER}, #{status,jdbcType=INTEGER},
       #{imagePath,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP},
-      #{lastActiveTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT}, #{wxOpenId,jdbcType=VARCHAR}
+      #{lastActiveTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT}, #{wxOpenId,jdbcType=VARCHAR},
+      #{profession,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{organization,jdbcType=VARCHAR},
+      #{registrationId,jdbcType=VARCHAR}, #{education,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.mindskip.xzs.domain.User" useGeneratedKeys="true" keyProperty="id">
@@ -108,6 +117,21 @@
       <if test="wxOpenId != null">
         wx_open_id,
       </if>
+      <if test="profession != null">
+        profession,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+      <if test="organization != null">
+        organization,
+      </if>
+      <if test="registrationId != null">
+        registration_id,
+      </if>
+      <if test="education != null">
+        education,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -163,6 +187,21 @@
       </if>
       <if test="wxOpenId != null">
         #{wxOpenId,jdbcType=VARCHAR},
+      </if>
+      <if test="profession != null">
+        #{profession,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="organization != null">
+        #{organization,jdbcType=VARCHAR},
+      </if>
+      <if test="registrationId != null">
+        #{registrationId,jdbcType=VARCHAR},
+      </if>
+      <if test="education != null">
+        #{education,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -220,6 +259,21 @@
       <if test="wxOpenId != null">
         wx_open_id = #{wxOpenId,jdbcType=VARCHAR},
       </if>
+      <if test="profession != null">
+        profession = #{wxOpenId,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        address = #{wxOpenId,jdbcType=VARCHAR},
+      </if>
+      <if test="organization != null">
+        organization = #{wxOpenId,jdbcType=VARCHAR},
+      </if>
+      <if test="registrationId != null">
+        registration_id = #{wxOpenId,jdbcType=VARCHAR},
+      </if>
+      <if test="education != null">
+        education = #{wxOpenId,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -241,7 +295,12 @@
       modify_time = #{modifyTime,jdbcType=TIMESTAMP},
       last_active_time = #{lastActiveTime,jdbcType=TIMESTAMP},
       deleted = #{deleted,jdbcType=BIT},
-      wx_open_id = #{wxOpenId,jdbcType=VARCHAR}
+      wx_open_id = #{wxOpenId,jdbcType=VARCHAR},
+      profession = #{profession,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      organization = #{organization,jdbcType=VARCHAR},
+      registration_id = #{registrationId,jdbcType=VARCHAR}
+      education = #{education,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 

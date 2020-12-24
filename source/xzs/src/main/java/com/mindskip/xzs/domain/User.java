@@ -43,6 +43,16 @@ public class User implements Serializable {
 
     private String wxOpenId;
 
+    private String profession;
+
+    private String address;
+
+    private String organization;
+
+    private String registrationId;
+
+    private String education;
+
     public Integer getId() {
         return id;
     }
@@ -186,4 +196,45 @@ public class User implements Serializable {
     public void setWxOpenId(String wxOpenId) {
         this.wxOpenId = wxOpenId == null ? null : wxOpenId.trim();
     }
+
+    public String getProfession() {
+        return profession;
+    }
+
+    public void setProfession(String profession) {
+        this.profession = profession == null ? null : profession.trim();
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address == null ? null : address.trim();
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(String organization) {
+        this.organization = organization == null ? null : organization.trim();
+    }
+
+    public String getRegistrationId() {
+        return registrationId;
+    }
+
+    public void setRegistrationId(String registrationId) {
+        this.registrationId = registrationId == null ? null : registrationId.trim();
+    }
+
+    public void setEducation(String education) {
+        this.education = education == null ? null : education.trim();
+    }
+
+    public String getEducation() {
+        return education;
+    }
+
 }

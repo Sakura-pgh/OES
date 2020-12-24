@@ -1,6 +1,7 @@
 package com.mindskip.xzs.repository;
 
 import com.mindskip.xzs.domain.ExamPaper;
+import com.mindskip.xzs.domain.User;
 import com.mindskip.xzs.domain.other.KeyValue;
 import com.mindskip.xzs.viewmodel.admin.exam.ExamPaperPageRequestVM;
 import com.mindskip.xzs.viewmodel.student.dashboard.PaperFilter;
@@ -26,7 +27,7 @@ public interface ExamPaperMapper extends BaseMapper<ExamPaper> {
 
     int updateByPrimaryKey(ExamPaper record);
 
-    List<ExamPaper> page(ExamPaperPageRequestVM requestVM);
+    List<ExamPaper> page(@Param("requestVM") ExamPaperPageRequestVM requestVM, @Param("user") User user);
 
     List<ExamPaper> taskExamPage(ExamPaperPageRequestVM requestVM);
 

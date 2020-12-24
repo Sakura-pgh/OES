@@ -3,8 +3,11 @@ package com.mindskip.xzs.controller.student;
 
 import com.mindskip.xzs.base.BaseApiController;
 import com.mindskip.xzs.base.RestResponse;
+import com.mindskip.xzs.domain.Classify;
 import com.mindskip.xzs.domain.Subject;
 import com.mindskip.xzs.domain.User;
+import com.mindskip.xzs.repository.ClassifyMapper;
+import com.mindskip.xzs.service.ClassifyService;
 import com.mindskip.xzs.service.SubjectService;
 import com.mindskip.xzs.viewmodel.student.education.SubjectEditRequestVM;
 import com.mindskip.xzs.viewmodel.student.education.SubjectVM;
@@ -20,6 +23,7 @@ import java.util.stream.Collectors;
 public class EducationController extends BaseApiController {
 
     private final SubjectService subjectService;
+    private final ClassifyService classifyService;
 
     @RequestMapping(value = "/subject/list", method = RequestMethod.POST)
     public RestResponse<List<SubjectVM>> list() {
@@ -40,4 +44,9 @@ public class EducationController extends BaseApiController {
         return RestResponse.ok(vm);
     }
 
+    @RequestMapping(value = "/classify/list", method = RequestMethod.POST)
+    public RestResponse<List<Classify>> listClassify() {
+        List<Classify> classifies = classifyService.allClassify();
+        return RestResponse.ok(classifies);
+    }
 }

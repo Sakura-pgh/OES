@@ -30,4 +30,6 @@ public interface TaskExamMapper extends BaseMapper<TaskExam> {
     List<TaskExam> page(TaskPageRequestVM requestVM);
 
     List<TaskExam> getByGradeLevel(Integer gradeLevel);
+
+    List<TaskExam> getByGradeLevelAndUserId(@Param("gradeLevel")Integer gradeLevel, @Param("userId")Integer userId);
 }

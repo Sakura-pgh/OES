@@ -26,7 +26,7 @@ public class ExamPaperController extends BaseApiController {
 
     @RequestMapping(value = "/page", method = RequestMethod.POST)
     public RestResponse<PageInfo<ExamResponseVM>> pageList(@RequestBody ExamPaperPageRequestVM model) {
-        PageInfo<ExamPaper> pageInfo = examPaperService.page(model);
+        PageInfo<ExamPaper> pageInfo = examPaperService.page(model, getCurrentUser());
         PageInfo<ExamResponseVM> page = PageInfoHelper.copyMap(pageInfo, e -> {
             ExamResponseVM vm = modelMapper.map(e, ExamResponseVM.class);
             vm.setCreateTime(DateTimeUtil.dateFormat(e.getCreateTime()));

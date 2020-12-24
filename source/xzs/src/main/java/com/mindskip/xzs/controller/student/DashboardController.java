@@ -67,7 +67,7 @@ public class DashboardController extends BaseApiController {
     @RequestMapping(value = "/task", method = RequestMethod.POST)
     public RestResponse<List<TaskItemVm>> task() {
         User user = getCurrentUser();
-        List<TaskExam> taskExams = taskExamService.getByGradeLevel(user.getUserLevel());
+        List<TaskExam> taskExams = taskExamService.getByGradeLevelAndUserId(user.getUserLevel(), user.getId());
         if (taskExams.size() == 0) {
             return RestResponse.ok(new ArrayList<>());
         }

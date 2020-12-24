@@ -30,4 +30,15 @@ public class UserCreateVM {
     private Integer role;
 
     private Integer userLevel;
+
+    private String profession;
+
+    private String address;
+
+    private String organization;
+
+    private String registrationId;
+
+    private String education;
+
 }

@@ -15,7 +15,7 @@ import java.util.List;
 
 public interface ExamPaperService extends BaseService<ExamPaper> {
 
-    PageInfo<ExamPaper> page(ExamPaperPageRequestVM requestVM);
+    PageInfo<ExamPaper> page(ExamPaperPageRequestVM requestVM, User user);
 
     PageInfo<ExamPaper> taskExamPage(ExamPaperPageRequestVM requestVM);
 
@@ -32,4 +32,6 @@ public interface ExamPaperService extends BaseService<ExamPaper> {
     List<Integer> selectMothCount();
 
     ExamResponseVM autoCreatePaper(AutoCreatePaperRequestVM requestVM, User user);
+
+    ExamPaperEditRequestVM autoQuestions(AutoCreatePaperRequestVM requestVM, User user);
 }

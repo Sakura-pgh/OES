@@ -210,4 +210,23 @@
     and grade_level = #{gradeLevel,jdbcType=INTEGER}
   </select>
 
+  <select id="getByGradeLevelAndUserId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_task_exam
+    where deleted=0
+    and grade_level = #{gradeLevel,jdbcType=INTEGER}
+    and (limit_user=0 or
+          EXISTS(
+            select
+              id
+            from
+              t_task_exam_user
+            where
+              task_exam_id=t_task_exam.id
+              and user_id=#{userId,jdbcType=INTEGER}
+          )
+        )
+  </select>
+
 </mapper>

@@ -65,9 +65,9 @@ public class ExamPaperServiceImpl extends BaseServiceImpl<ExamPaper> implements 
 
 
     @Override
-    public PageInfo<ExamPaper> page(ExamPaperPageRequestVM requestVM) {
+    public PageInfo<ExamPaper> page(ExamPaperPageRequestVM requestVM, User user) {
         return PageHelper.startPage(requestVM.getPageIndex(), requestVM.getPageSize(), "id desc").doSelectPageInfo(() ->
-                examPaperMapper.page(requestVM));
+                examPaperMapper.page(requestVM, user));
     }
 
     @Override
@@ -212,6 +212,37 @@ public class ExamPaperServiceImpl extends BaseServiceImpl<ExamPaper> implements 
         return examResponseVM;
     }
 
+    @Override
+    public ExamPaperEditRequestVM autoQuestions(AutoCreatePaperRequestVM requestVM, User user){
+        // todo
+        List<Question> questions = questionMapper.autoCreatePaper(requestVM);
+        if (questions.size() == 0)
+            return null;
+        Integer score = 0;
+        List<QuestionEditRequestVM> questionEditRequestVMList = new ArrayList<>();
+        for (Question question : questions){
+            QuestionEditRequestVM questionEditRequestVM = modelMapper.map(question, QuestionEditRequestVM.class);
+            questionEditRequestVM.setScore(question.getScore().toString());
+            questionEditRequestVMList.add(questionEditRequestVM);
+            score += question.getScore();
+        }
+        ExamPaperTitleItemVM examPaperTitleItemVM = new ExamPaperTitleItemVM();
+        examPaperTitleItemVM.setName("练习题");
+        examPaperTitleItemVM.setQuestionItems(questionEditRequestVMList);
+        List<ExamPaperTitleItemVM> examPaperTitleItemVMList = new ArrayList<>();
+        examPaperTitleItemVMList.add(examPaperTitleItemVM);
+        modelMapper.map(questions, QuestionEditRequestVM.class);
+        ExamPaperEditRequestVM examPaperEditRequestVM = new ExamPaperEditRequestVM();
+        examPaperEditRequestVM.setSubjectId(1);
+        examPaperEditRequestVM.setLevel(1);
+        examPaperEditRequestVM.setPaperType(6);
+        examPaperEditRequestVM.setName("自筛选题目");
+        examPaperEditRequestVM.setSuggestTime(requestVM.getSuggestTime());
+        examPaperEditRequestVM.setSuggestTime(requestVM.getSuggestTime());
+        examPaperEditRequestVM.setTitleItems(examPaperTitleItemVMList);
+        examPaperEditRequestVM.setScore(Integer.toString(score));
+        return examPaperEditRequestVM;
+    }
     private void examPaperFromVM(ExamPaperEditRequestVM examPaperEditRequestVM, ExamPaper examPaper, List<ExamPaperTitleItemVM> titleItemsVM) {
         Integer gradeLevel = subjectService.levelBySubjectId(examPaperEditRequestVM.getSubjectId());
         Integer questionCount = titleItemsVM.stream()

@@ -156,4 +156,9 @@ public class TaskExamServiceImpl extends BaseServiceImpl<TaskExam> implements Ta
     public List<TaskExam> getByGradeLevel(Integer gradeLevel) {
         return taskExamMapper.getByGradeLevel(gradeLevel);
     }
+
+    @Override
+    public List<TaskExam> getByGradeLevelAndUserId(Integer gradeLevel, Integer userId){
+        return taskExamMapper.getByGradeLevelAndUserId(gradeLevel, userId);
+    }
 }
